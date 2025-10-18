@@ -1,0 +1,10 @@
+.vscode/
+/venv/
+media/
+local_settings.py
+__pycache__
+*.pyc
+/.env*
+!/.env.example
+.idea
+*.sqlite3
