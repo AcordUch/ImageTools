@@ -6,11 +6,11 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-python-telegram-bot = "~=22.5"
-pillow = "~=12.0.0"
+kivy = {extras = ["base"], version = "*"}
+pillow = "*"
 
 [requires]
-python_version = "3.14"
+python_version = "3.13"
 
 [pipenv]
 allow_prereleases = true
