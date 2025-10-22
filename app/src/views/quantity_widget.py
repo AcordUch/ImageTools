@@ -1,26 +1,33 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
-from re import compile as re_compile
+from app.src.internal.decorator import update_mutex
 
 
 class QuantityWidget(BoxLayout):
     quantity_input = StringProperty("1")
-    _is_updating_text = False
+
+    _update_marker = False
 
     def __init__(self, **kwargs):
         super(QuantityWidget, self).__init__(**kwargs)
 
-        self._regex = re_compile("[1-9]\d*")
-        self.a= 0
+    def get_update_marker(self) -> bool:
+        return self._update_marker
 
+    def set_update_marker(self, marker: bool) -> None:
+        self._update_marker = marker
+
+    # noinspection PyTypeChecker
+    @update_mutex(get_update_marker, set_update_marker)
     def validate_input(self, value):
-        if self._is_updating_text:
-            return
-
-        self._is_updating_text = True
-
         if value in ["", "-"] or int(value) == 0:
-            value = "1"
             self.ids.quantity_input_box.text = "1"
 
-        self._is_updating_text = False
+    def increase(self):
+        self.ids.quantity_input_box.text = str(int(self.ids.quantity_input_box.text) + 1)
+
+    def decrease(self):
+        self.ids.quantity_input_box.text = str(int(self.ids.quantity_input_box.text) - 1)
+
+    def processing(self):
+        return self._update_marker

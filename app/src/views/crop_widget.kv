@@ -1,12 +1,11 @@
 #:import IOWidget views.quantity_widget.QuantityWidget
+#:import CropTypesWidget views.crop_types_widget.CropTypesWidget
 
 <CropWidget>:
     orientation: 'vertical'
-    size_hint: (1, .5)
-    BoxLayout: # Часть выбором типа разделения
-        orientation: 'vertical'
     BoxLayout: # Часть с настройкой количества разделенных
         orientation: 'horizontal'
         size_hint: (1, .2)
         QuantityWidget:
         QuantityWidget:
+    CropTypesWidget: # Часть выбором типа разделения

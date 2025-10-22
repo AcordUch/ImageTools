@@ -1,0 +1,37 @@
+#:import CropType common.src.croppers.domain.CropType
+
+<CropTypeWidget>:
+    orientation: 'horizontal'
+    CheckBox:
+        size_hint: (.2, None)
+        id: inner_check
+        group: root.group
+        active: root.default_active
+        on_active: root.change_crop_type(root.crop_type_value, self.active)
+    Label:
+        size_hint: (.8, None)
+        text: root.label_text
+
+<CropTypesWidget>:
+    orientation: 'vertical'
+    CropTypeWidget:
+        id: "square_check"
+        group: 'crop_type'
+        label_text: 'До квадрата'
+        crop_type_value: CropType.SQUARE
+        disable_check_callback: root.check_disable
+        notify_new_check_callback: root.on_check_disable
+    CropTypeWidget:
+        id: "width_check"
+        group: 'crop_type'
+        label_text: 'По ширине'
+        crop_type_value: CropType.WIDTH
+        disable_check_callback: root.check_disable
+        notify_new_check_callback: root.on_check_disable
+    CropTypeWidget:
+        id: "height_check"
+        group: 'crop_type'
+        label_text: 'По высоте'
+        crop_type_value: CropType.HEIGHT
+        disable_check_callback: root.check_disable
+        notify_new_check_callback: root.on_check_disable

@@ -5,6 +5,7 @@
         id: quantity_input_box
         multiline: False
         halign: 'center'
+        font_size: '25sp'
         text: root.quantity_input
         input_filter: "int"
         on_text: root.validate_input(self.text)
@@ -14,6 +15,8 @@
         Button:
             size_hint: (1, .5)
             text: '+'
+            on_release: root.increase()
         Button:
             size_hint: (1, .5)
             text: '-'
+            on_release: root.decrease()
