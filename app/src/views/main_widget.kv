@@ -1,0 +1,19 @@
+#:import FramingWidget views.framing_widget.FramingWidget
+#:import CropWidget views.crop_widget.CropWidget
+#:import IOWidget views.io_widget.IOWidget
+
+<MainWidget>:
+    orientation: 'vertical'
+    BoxLayout: # main
+        orientation: 'horizontal'
+        BoxLayout: # Левая часть
+            orientation: 'vertical'
+            size_hint: (.2, 1)
+            IOWidget: # Часть с IO изображения
+                image_widget: frame_widget
+            CropWidget: # Часть с настройкой разделения
+            BoxLayout: # Stub
+                size_hint: (1, .4)
+        FramingWidget: # Правая часть
+            size_hint: (.8, 1)
+            id: frame_widget

@@ -1,0 +1,63 @@
+<FramingWidget>:
+    orientation: 'vertical'
+    size_hint: (.5, 1)
+    BoxLayout: # Часть с изображением и выбором цвета
+        orientation: 'horizontal'
+        size_hint: (1, .8)
+        Image: # Часть с изображением
+            canvas.before:
+                Color:
+                    rgba: root.bg_color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            orientation: 'vertical'
+            id: image_display
+            source: ''
+        BoxLayout: # Часть с выбором цвета
+            orientation: 'vertical'
+            size_hint: (.07, 1)
+            Button: # Красный
+                size_hint: (1, .33)
+                text: 'Red'
+                on_release: print(image_display.source) #todo: remove
+            Button: # Черный
+                size_hint: (1, .33)
+                text: 'Black'
+                on_release: root.change_background()
+            Button: # Белый
+                size_hint: (1, .33)
+                text: 'White'
+            BoxLayout: # Stub
+                size_hint: (1, .5)
+    StackLayout: # Часть с управлениемм рамки по горизонтале
+        orientation: 'lr-tb'
+        size_hint: (1, .1)
+        Button:
+            size_hint: (.25, 1)
+            text: '<-'
+        Button:
+            size_hint: (.25, 1)
+            text: '->'
+        Button:
+            size_hint: (.25, 1)
+            text: 'expand'
+        Button:
+            size_hint: (.25, 1)
+            text: 'compress'
+    StackLayout: # Часть с управлениемм рамки по вертикале
+        orientation: 'lr-tb'
+        size_hint: (1, .1)
+        Button:
+            size_hint: (.25, 1)
+            text: 'up'
+        Button:
+            size_hint: (.25, 1)
+            text: 'down'
+        Button:
+            size_hint: (.25, 1)
+            text: 'expand'
+        Button:
+            size_hint: (.25, 1)
+            text: 'compress'

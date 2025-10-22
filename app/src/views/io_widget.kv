@@ -1,0 +1,16 @@
+#import io_widget views.io_widget
+
+<IOWidget>:
+    orientation: 'vertical'
+    size_hint: (1, .2)
+    StackLayout: # Часть с кнопками IO изображения
+        orientation: 'lr-tb'
+        size_hint: (1, 1)
+        Button:
+            size_hint: (.5, 1)
+            text: 'Открыть'
+            on_release: root.load_image()
+        Button:
+            size_hint: (.5, 1)
+            text: 'Сохранить'
+    TextInput: # Часть с названием выходных файлов

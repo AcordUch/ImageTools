@@ -1,5 +1,6 @@
 from PIL import Image
 from math import floor
+from os import getcwd
 
 from common.src.resizers.cropped import resize_to_thumbnail, resize_to_width, resize_to_height
 from common.src.resizers.original import adjust_to_dividers, resize_to_square
@@ -56,7 +57,7 @@ def main():
                     return
 
         except FileNotFoundError:
-            print("Указанный файл не найден. Повторите по новой")
+            print(f"Указанный файл не найден. Текущая рабочая директория: {getcwd()} \nПовторите по новой")
             continue
 
 
