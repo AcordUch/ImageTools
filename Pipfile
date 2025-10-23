@@ -6,8 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-kivy = {extras = ["base"], version = "*"}
-pillow = "*"
+olefile = "*"
+kivy = "*"
 
 [requires]
 python_version = "3.13"

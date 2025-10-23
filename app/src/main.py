@@ -4,9 +4,9 @@ from views.main_widget import MainWidget
 from kivy.lang import Builder
 
 Builder.load_file('views/quantity_widget.kv')
-Builder.load_file('views/framing_widget.kv')
+Builder.load_file('views/cropping_widget.kv')
 Builder.load_file('views/crop_types_widget.kv')
-Builder.load_file('views/crop_widget.kv')
+Builder.load_file('views/crop_settings_widget.kv')
 Builder.load_file('views/io_widget.kv')
 Builder.load_file('views/main_widget.kv')
 

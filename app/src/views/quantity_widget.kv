@@ -1,14 +1,11 @@
 <QuantityWidget>:
     orientation: 'horizontal'
-    TextInput:
+    Label:
         size_hint: (.7, 1)
         id: quantity_input_box
-        multiline: False
         halign: 'center'
         font_size: '25sp'
         text: root.quantity_input
-        input_filter: "int"
-        on_text: root.validate_input(self.text)
     BoxLayout:
         orientation: 'vertical'
         size_hint: (.3, 1)

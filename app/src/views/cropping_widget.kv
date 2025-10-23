@@ -1,4 +1,4 @@
-<FramingWidget>:
+<CroppingWidget>:
     orientation: 'vertical'
     BoxLayout: # Часть с изображением и выбором цвета
         orientation: 'horizontal'
@@ -30,7 +30,7 @@
                 text: 'White'
             BoxLayout: # Stub
                 size_hint: (1, .5)
-    StackLayout: # Часть с управлениемм рамки по горизонтале
+    StackLayout: # Часть с управлением рамки по горизонтали
         orientation: 'lr-tb'
         size_hint: (1, .1)
         Button:
@@ -45,7 +45,7 @@
         Button:
             size_hint: (.25, 1)
             text: 'compress'
-    StackLayout: # Часть с управлениемм рамки по вертикале
+    StackLayout: # Часть с управлением рамки по вертикале
         orientation: 'lr-tb'
         size_hint: (1, .1)
         Button:

@@ -1,33 +1,24 @@
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty
-from app.src.internal.decorator import update_mutex
+from kivy.properties import StringProperty, ObjectProperty
+
+from app.src.views.cropping_widget import CroppingWidget
 
 
 class QuantityWidget(BoxLayout):
     quantity_input = StringProperty("1")
+    crop_frame_method = StringProperty("")
 
-    _update_marker = False
+    cropping_widget: CroppingWidget = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(QuantityWidget, self).__init__(**kwargs)
 
-    def get_update_marker(self) -> bool:
-        return self._update_marker
-
-    def set_update_marker(self, marker: bool) -> None:
-        self._update_marker = marker
-
-    # noinspection PyTypeChecker
-    @update_mutex(get_update_marker, set_update_marker)
-    def validate_input(self, value):
-        if value in ["", "-"] or int(value) == 0:
-            self.ids.quantity_input_box.text = "1"
-
     def increase(self):
-        self.ids.quantity_input_box.text = str(int(self.ids.quantity_input_box.text) + 1)
+        self.quantity_input = str(int(self.quantity_input) + 1)
+        getattr(self.cropping_widget, self.crop_frame_method)(int(self.quantity_input))
 
     def decrease(self):
-        self.ids.quantity_input_box.text = str(int(self.ids.quantity_input_box.text) - 1)
-
-    def processing(self):
-        return self._update_marker
+        new_value = int(self.quantity_input) - 1
+        if new_value > 0:
+            self.quantity_input = str(new_value)
+            getattr(self.cropping_widget, self.crop_frame_method)(int(self.quantity_input))

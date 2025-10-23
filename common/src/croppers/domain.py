@@ -1,5 +1,7 @@
 from enum import Enum
-from PIL import Image
+from PIL import Image, ImageDraw
+
+from common.src.resizers.original import adjust_to_dividers
 
 
 class CropType(Enum):
@@ -10,26 +12,16 @@ class CropType(Enum):
 
 class CropFrame:
     def __init__(self):
-        self._image = None
-        self._crop_type = None
-        self._width_part = None
-        self._height_part = None
-        self.frame_width = 0
-        self.frame_height = 0
-        self.crop_part_width = 0
-        self.crop_part_height = 0
-
-    def pre_init(self, image_path: str):
-        with Image.open(image_path) as img:
-            self._image = img.copy()
-
-    @property
-    def crop_type(self) -> CropType | None:
-        return self._crop_type
-
-    @crop_type.setter
-    def crop_type(self, crop_type: CropType):
-        self._crop_type = crop_type
+        self.src_image: Image.Image | None = None
+        self.framed_image: Image.Image | None = None
+        self.framed_image_canvas: ImageDraw.ImageDraw | None = None
+        self.crop_type = CropType.SQUARE
+        self._width_part = 1
+        self._height_part = 1
+        self.image_width = 0
+        self.image_height = 0
+        self.segment_width = 0
+        self.segment_height = 0
 
     @property
     def width_part(self) -> int | None:
@@ -38,6 +30,9 @@ class CropFrame:
     @width_part.setter
     def width_part(self, width_part: int):
         self._width_part = width_part
+        self.adjust_to_dividers()
+        self.recalculate()
+        self.draw_frame()
 
     @property
     def height_part(self) -> int | None:
@@ -46,27 +41,66 @@ class CropFrame:
     @height_part.setter
     def height_part(self, height_part: int):
         self._height_part = height_part
+        self.adjust_to_dividers()
+        self.recalculate()
+        self.draw_frame()
 
-    def recalculate_width_and_height(self):
-        if self._width_part is None or self._height_part is None:
+    def load_image(self, path: str) -> None:
+        with Image.open(path) as img:
+            self.src_image = adjust_to_dividers(img.copy(), self.width_part, self.height_part)
+            self.framed_image = self.src_image.copy()
+            self.framed_image_canvas = ImageDraw.Draw(self.framed_image, mode="RGBA")
+
+            self.recalculate()
+            self.draw_frame()
+
+    def adjust_to_dividers(self):
+        if self.src_image == None or self.framed_image == None:
             return
 
-        frame_width, frame_height = self._image.size
-        self.frame_width = frame_width
-        self.frame_height = frame_height
+        self.src_image = adjust_to_dividers(self.src_image, self.width_part, self.height_part)
+        self.framed_image = adjust_to_dividers(self.src_image, self.width_part, self.height_part)
+        self.framed_image_canvas = ImageDraw.Draw(self.framed_image, mode="RGBA")
 
-        crop_part_width = int(frame_width / self._width_part)
-        crop_part_height = int(frame_height / self._height_part)
-        self.crop_part_width = crop_part_width
-        self.crop_part_height = crop_part_height
+    def recalculate(self):
+        if self.src_image == None or self.framed_image == None:
+            return
+
+        frame_width, frame_height = self.src_image.size
+        self.image_width = frame_width
+        self.image_height = frame_height
+
+        segment_width = int(frame_width / self.width_part)
+        segment_height = int(frame_height / self.height_part)
+        self.segment_width = segment_width
+        self.segment_height = segment_height
+
+    def draw_frame(self) -> None:
+        def draw_frame_part(current_width_part: int, current_height_part: int) -> None:
+            print(f"draw_frame_part: {current_width_part}, {current_height_part}")
+
+            zero_width = -1 * current_width_part + self.segment_width * current_width_part
+            zero_height = -1 * current_height_part + self.segment_height * current_height_part
+
+            end_width = zero_width + self.segment_width - 1
+            end_height = zero_height + self.segment_height - 1
+
+            print(f"zero_width: {zero_width}, zero_height: {zero_height}")
+            print(f"end_width: {end_width}, end_height: {end_height}")
+
+            self.framed_image_canvas.rectangle(
+                ((zero_width, zero_height), (end_width, end_height)),
+                outline='red'
+            )
+
+        if self.src_image == None or self.framed_image == None:
+            return
+
+        for hp in range(self._height_part):
+            for wp in range(self._width_part):
+                draw_frame_part(wp, hp)
+        print("----------")
+
+        self.framed_image.show()
 
 
-    # def pre_init(self, crop_img: Image.Image, width_parts: int, height_parts: int):
-    #     frame_width, frame_height = crop_img.size
-    #     self.frame_width = frame_width
-    #     self.frame_height = frame_height
-    #
-    #     crop_part_width = int(frame_width / width_parts)
-    #     crop_part_height = int(frame_height / height_parts)
-    #     self.crop_part_width = crop_part_width
-    #     self.crop_part_height = crop_part_height

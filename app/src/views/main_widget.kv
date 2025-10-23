@@ -1,5 +1,5 @@
-#:import FramingWidget views.framing_widget.FramingWidget
-#:import CropWidget views.crop_widget.CropWidget
+#:import CroppingWidget views.cropping_widget.CroppingWidget
+#:import CropSettingsWidget views.crop_settings_widget.CropSettingsWidget
 #:import IOWidget views.io_widget.IOWidget
 
 <MainWidget>:
@@ -11,11 +11,12 @@
             size_hint: (.2, 1)
             IOWidget: # Часть с IO изображения
                 size_hint: (1, .2)
-                image_widget: frame_widget
-            CropWidget: # Часть с настройкой разделения
+                cropping_widget: cropping_widget
+            CropSettingsWidget: # Часть с настройкой разделения
                 size_hint: (1, .5)
+                cropping_widget: cropping_widget
             BoxLayout: # Stub
                 size_hint: (1, .4)
-        FramingWidget: # Правая часть
+        CroppingWidget: # Правая часть
             size_hint: (.8, 1)
-            id: frame_widget
+            id: cropping_widget
