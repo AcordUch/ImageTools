@@ -1,21 +1,30 @@
-from typing import List
+from typing import List, Mapping
 from PIL import Image
+from collections.abc import Callable
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ListProperty, ObjectProperty
 from kivy.core.image import Image as CoreImage
+from kivy.clock import Clock, ClockEvent
 
 from common.src.croppers.domain import CropType
 from common.src.croppers.domain import CropFrame
 
+type ResizeFunction = Callable[[int], None]
+
 
 class CroppingWidget(BoxLayout):
     bg_color = ListProperty([1, 1, 1, 1])
-    _crop_frame: CropFrame = ObjectProperty(CropFrame())
     image_texture_property = ObjectProperty(None)
+
+    _crop_frame: CropFrame = ObjectProperty(CropFrame())
+    _active_clocks: Mapping[str, List[ClockEvent]] = {}
 
     def __init__(self, **kwargs):
         super(CroppingWidget, self).__init__(**kwargs)
+
+    def get_image(self) -> Image.Image | None:
+        return self._crop_frame.src_image
 
     def change_image(self, new_source: str) -> None:
         self._crop_frame.load_image(new_source)
@@ -38,7 +47,7 @@ class CroppingWidget(BoxLayout):
         self._crop_frame.height_part = new_height
         self.update_image(self._crop_frame.generate_kivy_image())
 
-    def change_background(self):
+    def change_background(self) -> None:
         if self.bg_color == [1, 1, 1, 1]:
             self.bg_color = [0, 0, 0, 1]
         else:
@@ -46,3 +55,37 @@ class CroppingWidget(BoxLayout):
 
     def crop_image(self) -> List[Image.Image]:
         return self._crop_frame.crop_image()
+
+    def move_x(self, delta: int) -> None:
+        self._crop_frame.frame_zero_x += delta
+
+        self.update_image(self._crop_frame.generate_kivy_image())
+
+    def move_y(self, delta: int) -> None:
+        self._crop_frame.frame_zero_y += delta
+
+        self.update_image(self._crop_frame.generate_kivy_image())
+
+    def resize_width(self, delta: int) -> None:
+        self._crop_frame.segment_width += delta
+
+        self.update_image(self._crop_frame.generate_kivy_image())
+
+    def resize_height(self, delta: int) -> None:
+        self._crop_frame.segment_height += delta
+
+        self.update_image(self._crop_frame.generate_kivy_image())
+
+    def _start_repeating(self, delta: int, resize_func: ResizeFunction) -> None:
+        resize_func(delta)
+
+        clock_event = Clock.schedule_interval(lambda _: resize_func(delta), .15)
+
+        active_func_clock = self._active_clocks.get(resize_func.__name__, [])
+        active_func_clock.append(clock_event)
+
+        self._active_clocks[resize_func.__name__] = active_func_clock
+
+    def _stop_repeating(self, resize_func: ResizeFunction) -> None:
+        for active_clock in self._active_clocks[resize_func.__name__]:
+            Clock.unschedule(active_clock)

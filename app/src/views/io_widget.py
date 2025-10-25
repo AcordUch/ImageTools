@@ -18,15 +18,23 @@ class IOWidget(BoxLayout):
     def __init__(self, **kwargs):
         super(IOWidget, self).__init__(**kwargs)
 
-    def load_image(self):
+    def load_image(self) -> None:
         logging.debug("Call load_image")
-        image_path = filechooser.open_file(title="Pick a file...", filters=[("Image", "*.png", "*.jpg")])[0]
+
+        paths = filechooser.open_file(title="Pick a file...", filters=[("Image", "*.png", "*.jpg")])
+        if not paths:
+            return
+
+        image_path = paths[0]
         if image_path:
             self._file_name = path.splitext(path.basename(image_path))[0]
             self.cropping_widget.change_image(image_path)
 
-    def save_image(self):
+    def save_image(self) -> None:
         logging.debug("Call save_image")
+
+        if self.cropping_widget.get_image() is None:
+            return
 
         copped_image: List[Image] = self.cropping_widget.crop_image()
 

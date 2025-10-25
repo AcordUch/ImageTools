@@ -1,3 +1,5 @@
+import logging
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, ObjectProperty, BooleanProperty
 
@@ -30,7 +32,7 @@ class CropTypeWidget(BoxLayout):
     # noinspection PyTypeChecker
     @update_mutex(get_update_marker, set_update_marker)
     def change_crop_type(self, new_crop_type: CropType, active: bool) -> None:
-        print(f"change_crop_type: new_crop_type: {new_crop_type} active: {active}")
+        logging.debug(f"change_crop_type: new_crop_type: {new_crop_type} active: {active}")
 
         if not active:
             self.disable_check_callback(new_crop_type, self)

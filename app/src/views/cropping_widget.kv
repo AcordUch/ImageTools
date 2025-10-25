@@ -36,27 +36,43 @@
         Button:
             size_hint: (.25, 1)
             text: '<-'
+            on_press: root._start_repeating(-10, root.move_x)
+            on_release: root._stop_repeating(root.move_x)
         Button:
             size_hint: (.25, 1)
             text: '->'
+            on_press: root._start_repeating(10, root.move_x)
+            on_release: root._stop_repeating(root.move_x)
         Button:
             size_hint: (.25, 1)
             text: 'expand'
+            on_press: root._start_repeating(5, root.resize_width)
+            on_release: root._stop_repeating(root.resize_width)
         Button:
             size_hint: (.25, 1)
             text: 'compress'
+            on_press: root._start_repeating(-5, root.resize_width)
+            on_release: root._stop_repeating(root.resize_width)
     StackLayout: # Часть с управлением рамки по вертикале
         orientation: 'lr-tb'
         size_hint: (1, .1)
         Button:
             size_hint: (.25, 1)
             text: 'up'
+            on_press: root._start_repeating(-10, root.move_y)
+            on_release: root._stop_repeating(root.move_y)
         Button:
             size_hint: (.25, 1)
             text: 'down'
+            on_press: root._start_repeating(10, root.move_y)
+            on_release: root._stop_repeating(root.move_y)
         Button:
             size_hint: (.25, 1)
             text: 'expand'
+            on_press: root._start_repeating(5, root.resize_height)
+            on_release: root._stop_repeating(root.resize_height)
         Button:
             size_hint: (.25, 1)
             text: 'compress'
+            on_press: root._start_repeating(-5, root.resize_height)
+            on_release: root._stop_repeating(root.resize_height)
