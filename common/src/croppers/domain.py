@@ -40,7 +40,6 @@ class CropFrame:
         with Image.open(path) as img:
             self._src_image = img.copy()
 
-        self.adjust_image_to_dividers()
         self.reinitialize_canvas()
         self.recalculate_from_image()
         self.crop_to_frame()
@@ -182,6 +181,7 @@ class CropFrame:
             return
 
         self.frame_width, self.frame_height = self._src_image.size
+        self.frame_width, self.frame_height = self.frame_width - 5, self.frame_height - 5
 
         self._segment_width = int(self.frame_width / self.width_part)
         self._segment_height = int(self.frame_height / self.height_part)
@@ -189,8 +189,8 @@ class CropFrame:
     def recalculate_from_frame(self) -> None:
         logging.debug(f"Call: recalculate_from_frame")
 
-        self.segment_width = int(self.frame_width / self.width_part)
-        self.segment_height = int(self.frame_height / self.height_part)
+        self._segment_width = int(self.frame_width / self.width_part)
+        self._segment_height = int(self.frame_height / self.height_part)
 
     def recalculate_frame_width(self) -> None:
         logging.debug(f"Call: recalculate_frame_width")
@@ -220,7 +220,7 @@ class CropFrame:
             for wp in range(self._width_part):
                 crop_to_frame_part(wp, hp)
 
-        logging.debug(f"Result self._frames: {self._frames}")
+        logging.debug(f"Result: self._frames: {self._frames}")
 
     def draw_frame(self) -> None:
         logging.debug(f"Call: draw_frame")
