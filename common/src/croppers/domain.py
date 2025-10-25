@@ -6,8 +6,6 @@ from typing import Tuple, List
 from PIL import Image, ImageDraw
 from kivy.core.image import Image as CoreImage
 
-from common.src.resizers.original import adjust_to_dividers
-
 
 class CropType(Enum):
     SQUARE = 0
@@ -30,6 +28,8 @@ class CropFrame:
         self.frame_height: int = 0
         self._frame_zero_x: int = 0
         self._frame_zero_y: int = 0
+        self._image_center_x: int = 0
+        self._image_center_y: int = 0
         self._frames: List[Tuple[Tuple[int, int], Tuple[int, int]]] = []
 
     @property
@@ -40,9 +40,9 @@ class CropFrame:
         with Image.open(path) as img:
             self._src_image = img.copy()
 
-        self.reinitialize_canvas()
-        self.recalculate_from_image()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._recalculate_from_image()
+        self._crop_to_frame()
 
     @property
     def width_part(self) -> int | None:
@@ -56,10 +56,10 @@ class CropFrame:
 
         self._width_part = width_part
 
-        self.reinitialize_canvas()
-        self.adjust_frame_to_dividers(increase)
-        self.recalculate_from_frame()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._adjust_frame_to_dividers(increase)
+        self._recalculate_from_frame()
+        self._crop_to_frame()
 
     @property
     def height_part(self) -> int | None:
@@ -73,10 +73,10 @@ class CropFrame:
 
         self._height_part = height_part
 
-        self.reinitialize_canvas()
-        self.adjust_frame_to_dividers(increase)
-        self.recalculate_from_frame()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._adjust_frame_to_dividers(increase)
+        self._recalculate_from_frame()
+        self._crop_to_frame()
 
     @property
     def segment_width(self) -> int | None:
@@ -91,9 +91,9 @@ class CropFrame:
 
         self._segment_width = segment_width
 
-        self.reinitialize_canvas()
-        self.recalculate_frame_width()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._recalculate_frame_width()
+        self._crop_to_frame()
 
     @property
     def segment_height(self) -> int | None:
@@ -108,9 +108,9 @@ class CropFrame:
 
         self._segment_height = segment_height
 
-        self.reinitialize_canvas()
-        self.recalculate_frame_height()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._recalculate_frame_height()
+        self._crop_to_frame()
 
     @property
     def frame_zero_x(self) -> int | None:
@@ -122,8 +122,8 @@ class CropFrame:
 
         self._frame_zero_x = frame_zero_x
 
-        self.reinitialize_canvas()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._crop_to_frame()
 
     @property
     def frame_zero_y(self) -> int | None:
@@ -135,23 +135,26 @@ class CropFrame:
 
         self._frame_zero_y = frame_zero_y
 
-        self.reinitialize_canvas()
-        self.crop_to_frame()
+        self._reinitialize_canvas()
+        self._crop_to_frame()
 
     @property
     def frames(self) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
         return self._frames
 
-    def adjust_image_to_dividers(self) -> None:
-        logging.debug(f"Call: adjust_image_to_dividers")
+    def _frame_x_y_from_center(self) -> None:
+        self.frame_zero_x = self._image_center_x - self.frame_width // 2
+        self.frame_zero_y = self._image_center_y - self.frame_height // 2
 
-        if self._src_image == None:
-            logging.debug(f"Self.src_image is None")
-            return
+    def _frame_to_square(self) -> None:
+        if self.frame_width < self.frame_height:
+            self.frame_width = self.frame_width
+            self.frame_height = self.frame_width
+        else:
+            self.frame_width = self.frame_height
+            self.frame_height = self.frame_height
 
-        self._src_image = adjust_to_dividers(self._src_image, self.width_part, self.height_part)
-
-    def adjust_frame_to_dividers(self, increase: bool) -> None:
+    def _adjust_frame_to_dividers(self, increase: bool) -> None:
         logging.debug(f"Call: adjust_image_to_dividers")
 
         width_div = self.frame_width % self.width_part
@@ -163,7 +166,7 @@ class CropFrame:
         if height_div != 0:
             self.frame_height = self.frame_height + self.height_part - height_div if increase else self.frame_height - height_div
 
-    def reinitialize_canvas(self) -> None:
+    def _reinitialize_canvas(self) -> None:
         logging.debug(f"Call: reinitialize_canvas")
 
         if self._src_image == None:
@@ -173,37 +176,42 @@ class CropFrame:
         self.framed_image = self._src_image.copy()
         self.framed_image_canvas = ImageDraw.Draw(self.framed_image, mode="RGBA")
 
-    def recalculate_from_image(self) -> None:
+    def _recalculate_from_image(self) -> None:
         logging.debug(f"Call: recalculate_from_image")
 
         if self._src_image == None:
             logging.debug(f"Self.src_image is None")
             return
 
-        self.frame_width, self.frame_height = self._src_image.size
-        self.frame_width, self.frame_height = self.frame_width - 5, self.frame_height - 5
+        img_width, img_height = self._src_image.size
+
+        self._image_center_x, self._image_center_y = img_width // 2, img_height // 2
+        self.frame_width, self.frame_height = img_width - 5, img_height - 5
+
+        self._frame_to_square()
+        self._frame_x_y_from_center()
 
         self._segment_width = int(self.frame_width / self.width_part)
         self._segment_height = int(self.frame_height / self.height_part)
 
-    def recalculate_from_frame(self) -> None:
+    def _recalculate_from_frame(self) -> None:
         logging.debug(f"Call: recalculate_from_frame")
 
         self._segment_width = int(self.frame_width / self.width_part)
         self._segment_height = int(self.frame_height / self.height_part)
 
-    def recalculate_frame_width(self) -> None:
+    def _recalculate_frame_width(self) -> None:
         logging.debug(f"Call: recalculate_frame_width")
 
         self.frame_width = self.segment_width * self.width_part
 
-    def recalculate_frame_height(self) -> None:
+    def _recalculate_frame_height(self) -> None:
         logging.debug(f"Call: recalculate_frame_height")
 
         self.frame_height = self.segment_height * self.height_part
 
-    def crop_to_frame(self) -> None:
-        def crop_to_frame_part(current_width_part: int, current_height_part: int) -> None:
+    def _crop_to_frame(self) -> None:
+        def _crop_to_frame_part(current_width_part: int, current_height_part: int) -> None:
             zero_width = self.frame_zero_x + self.segment_width * current_width_part
             zero_height = self.frame_zero_y + self.segment_height * current_height_part
 
@@ -218,7 +226,7 @@ class CropFrame:
 
         for hp in range(self._height_part):
             for wp in range(self._width_part):
-                crop_to_frame_part(wp, hp)
+                _crop_to_frame_part(wp, hp)
 
         logging.debug(f"Result: self._frames: {self._frames}")
 

@@ -17,7 +17,7 @@
     CropTypeWidget:
         id: "square_check"
         group: 'crop_type'
-        label_text: 'До квадрата'
+        label_text: 'Квадратно'
         crop_type_value: CropType.SQUARE
         disable_check_callback: root.check_disable
         notify_new_crop_type_callback: root.new_crop_type
@@ -25,14 +25,7 @@
     CropTypeWidget:
         id: "width_check"
         group: 'crop_type'
-        label_text: 'По ширине'
-        crop_type_value: CropType.WIDTH
-        disable_check_callback: root.check_disable
-        notify_new_crop_type_callback: root.new_crop_type
-    CropTypeWidget:
-        id: "height_check"
-        group: 'crop_type'
-        label_text: 'По высоте'
-        crop_type_value: CropType.HEIGHT
+        label_text: 'Свободно'
+        crop_type_value: CropType.FREE
         disable_check_callback: root.check_disable
         notify_new_crop_type_callback: root.new_crop_type
