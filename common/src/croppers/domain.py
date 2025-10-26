@@ -24,8 +24,8 @@ class CropFrame:
         self._height_part: int = 1
         self._segment_width: int = 0
         self._segment_height: int = 0
-        self.frame_width: int = 0
-        self.frame_height: int = 0
+        self._frame_width: int = 0
+        self._frame_height: int = 0
         self._frame_zero_x: int = 0
         self._frame_zero_y: int = 0
         self._image_center_x: int = 0
@@ -57,11 +57,20 @@ class CropFrame:
         self._width_part = width_part
 
         self._reinitialize_canvas()
+
         self._adjust_frame_to_dividers(increase)
         self._recalculate_from_frame()
-        self._segment_to_square_width()
+
+        if self.crop_type == CropType.SQUARE:
+            self._segment_to_square_width()
+            self._recalculate_frame_height()
         self._recalculate_frame_width()
-        self._recalculate_frame_height()
+
+        is_clamped = self._clamp_to_screen()
+        if is_clamped:
+            self._adjust_frame_to_dividers(False)
+            self._recalculate_from_frame()
+
         self._frame_x_y_from_center()
         self._crop_to_frame()
 
@@ -78,8 +87,21 @@ class CropFrame:
         self._height_part = height_part
 
         self._reinitialize_canvas()
+
         self._adjust_frame_to_dividers(increase)
         self._recalculate_from_frame()
+
+        if self.crop_type == CropType.SQUARE:
+            self._segment_to_square_height()
+            self._recalculate_frame_width()
+        self._recalculate_frame_height()
+
+        is_clamped = self._clamp_to_screen()
+        if is_clamped:
+            self._adjust_frame_to_dividers(False)
+            self._recalculate_from_frame()
+
+        self._frame_x_y_from_center()
         self._crop_to_frame()
 
     @property
@@ -91,6 +113,10 @@ class CropFrame:
         logging.debug(f"Set: segment_width={segment_width}")
 
         if segment_width < 1:
+            return
+
+        if self.crop_type == CropType.SQUARE:
+            self._segment_square_mod(segment_width - self._segment_width)
             return
 
         self._segment_width = segment_width
@@ -110,9 +136,22 @@ class CropFrame:
         if segment_height < 1:
             return
 
+        if self.crop_type == CropType.SQUARE:
+            self._segment_square_mod(segment_height - self._segment_height)
+            return
+
         self._segment_height = segment_height
 
         self._reinitialize_canvas()
+        self._recalculate_frame_height()
+        self._crop_to_frame()
+
+    def _segment_square_mod(self, delta: int) -> None:
+        self._segment_width += delta
+        self._segment_height += delta
+
+        self._reinitialize_canvas()
+        self._recalculate_frame_width()
         self._recalculate_frame_height()
         self._crop_to_frame()
 
@@ -155,25 +194,25 @@ class CropFrame:
         return self._frames
 
     def _frame_x_y_from_center(self) -> None:
-        self.frame_zero_x = self._image_center_x - self.frame_width // 2
-        self.frame_zero_y = self._image_center_y - self.frame_height // 2
+        self._frame_zero_x = self._image_center_x - self._frame_width // 2
+        self._frame_zero_y = self._image_center_y - self._frame_height // 2
 
     def _frame_to_square(self) -> None:
-        min_size = min(self.frame_width, self.frame_height)
-        self.frame_width = min_size
-        self.frame_height = min_size
+        min_size = min(self._frame_width, self._frame_height)
+        self._frame_width = min_size
+        self._frame_height = min_size
 
     def _adjust_frame_to_dividers(self, increase: bool) -> None:
         logging.debug(f"Call: adjust_image_to_dividers")
 
-        width_div = self.frame_width % self.width_part
-        height_div = self.frame_height % self.height_part
+        width_div = self._frame_width % self.width_part
+        height_div = self._frame_height % self.height_part
 
         if width_div != 0:
-            self.frame_width = self.frame_width + self.width_part - width_div if increase else self.frame_width - width_div
+            self._frame_width = self._frame_width + self.width_part - width_div if increase else self._frame_width - width_div
 
         if height_div != 0:
-            self.frame_height = self.frame_height + self.height_part - height_div if increase else self.frame_height - height_div
+            self._frame_height = self._frame_height + self.height_part - height_div if increase else self._frame_height - height_div
 
     def _reinitialize_canvas(self) -> None:
         logging.debug(f"Call: reinitialize_canvas")
@@ -195,35 +234,45 @@ class CropFrame:
         img_width, img_height = self._src_image.size
 
         self._image_center_x, self._image_center_y = img_width // 2, img_height // 2
-        self.frame_width, self.frame_height = img_width - 5, img_height - 5
+        self._frame_width, self._frame_height = img_width - 2, img_height - 2
 
         self._frame_to_square()
         self._frame_x_y_from_center()
 
-        self._segment_width = int(self.frame_width / self.width_part)
-        self._segment_height = int(self.frame_height / self.height_part)
+        self._segment_width = int(self._frame_width / self.width_part)
+        self._segment_height = int(self._frame_height / self.height_part)
 
     def _recalculate_from_frame(self) -> None:
         logging.debug(f"Call: recalculate_from_frame")
 
-        self._segment_width = int(self.frame_width / self.width_part)
-        self._segment_height = int(self.frame_height / self.height_part)
+        self._segment_width = int(self._frame_width / self.width_part)
+        self._segment_height = int(self._frame_height / self.height_part)
 
     def _recalculate_frame_width(self) -> None:
         logging.debug(f"Call: recalculate_frame_width")
 
-        self.frame_width = self.segment_width * self.width_part
+        self._frame_width = self.segment_width * self.width_part
 
     def _recalculate_frame_height(self) -> None:
         logging.debug(f"Call: recalculate_frame_height")
 
-        self.frame_height = self.segment_height * self.height_part
+        self._frame_height = self.segment_height * self.height_part
 
-    def _clamp_to_screen(self):
+    def _clamp_to_screen(self) -> bool:
         logging.debug(f"Call: clamp_to_screen")
 
+        img_width, img_height = self._src_image.size
+        is_clamped = False
 
+        if self._frame_width >= img_width:
+            self._frame_width = img_width - 2
+            is_clamped = True
 
+        if self._frame_height >= img_height:
+            self._frame_height = img_height - 2
+            is_clamped = True
+
+        return is_clamped
 
     def _crop_to_frame(self) -> None:
         def _crop_to_frame_part(current_width_part: int, current_height_part: int) -> None:
