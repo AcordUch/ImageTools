@@ -156,12 +156,12 @@ class CropFrame:
         self._crop_to_frame()
 
     def _segment_to_square_width(self) -> None:
-        self.segment_width = self.segment_width
-        self.segment_height = self.segment_width
+        self._segment_width = self.segment_width
+        self._segment_height = self.segment_width
 
     def _segment_to_square_height(self) -> None:
-        self.segment_width = self.segment_height
-        self.segment_height = self.segment_height
+        self._segment_width = self.segment_height
+        self._segment_height = self.segment_height
 
     @property
     def frame_zero_x(self) -> int | None:
