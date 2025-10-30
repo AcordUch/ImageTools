@@ -36,13 +36,18 @@ class IOWidget(BoxLayout):
         if self.cropping_widget.get_image() is None:
             return
 
-        copped_image: List[Image] = self.cropping_widget.crop_image()
+        copped_images: List[Image] = self.cropping_widget.crop_image()
+        transformed_images: List[Image.Image] = []
+
+        for copped_image in copped_images:
+            for transformer in self.cropping_widget.image_transformers:
+                transformed_images.append(transformer(copped_image))
 
         filechooser.save_file(
             title="Сохранить файл как...",
             path=f"{self._file_name}{self._file_extension}",
             filters=[("Image", "*.png", "*.jpg"), ('Все файлы', '*.*')],
-            on_selection=lambda s: self._handle_save_selection(s, copped_image)
+            on_selection=lambda s: self._handle_save_selection(s, transformed_images)
         )
 
     def _handle_save_selection(self, selection: List[str], images: List[Image.Image]) -> None:
