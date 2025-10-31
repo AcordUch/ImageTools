@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 olefile = "*"
 kivy = "*"
+rich = "*"
+questionary = "*"
 
 [requires]
 python_version = "3.13"

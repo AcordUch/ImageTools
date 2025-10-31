@@ -1,65 +1,42 @@
-from PIL import Image
-from math import floor
-from os import getcwd
+from typing import Mapping
 
-from common.src.resizers.cropped import resize_to_thumbnail, resize_to_width, resize_to_height
-from common.src.resizers.original import adjust_to_dividers, resize_to_square
-from common.src.croppers.domain import CropType
-from common.src.croppers.crop import crop_many
-from console.src.croppers.config import init_crop_cfg
+from rich.console import Console
+
+from console.src.internal.config import AppConfig
+from console.src.internal.image_processor import ImageProcessor
+from console.src.views.common import CurrentView, View, InputFunction
+from console.src.views.main_menu import MainMenu
+from console.src.views.crop_type_selector import CropTypeSelector
+from console.src.views.crop_part_selector import CropPartSelector
+from console.src.views.image_crop_screen import ImageCropScreen
+from console.src.views.save_type_selector import SavePartSelector
+from console.src.views.change_save_path import ChangeSavePath
 
 
-def main():
-    def continue_parser() -> bool:
+class Main:
+    def __init__(self) -> None:
+        self.cfg: AppConfig = AppConfig()
+        self.console: Console = Console()
+        self.image_processor: ImageProcessor = ImageProcessor(self.cfg)
+
+        self.views: Mapping[CurrentView, View] = {
+            CurrentView.MAIN_MENU: MainMenu(self.cfg, self.console),
+            CurrentView.CROP_TYPE_SELECTOR: CropTypeSelector(self.cfg, self.console),
+            CurrentView.CROP_PARTS_SELECTOR: CropPartSelector(self.cfg, self.console),
+            CurrentView.SAVE_TYPE_SELECTOR: SavePartSelector(self.cfg, self.console),
+            CurrentView.IMAGE_CROP_SCREEN: ImageCropScreen(self.cfg, self.console, self.image_processor),
+            CurrentView.CHANGE_SAVE_PATH: ChangeSavePath(self.cfg, self.console),
+        }
+
+    def main(self) -> None:
+        current_view: CurrentView = CurrentView.MAIN_MENU
+
         while True:
-            inpt = input("Желаете продолжить? (default N) Y/N: ")
-            if inpt.strip() == "" or inpt.strip() == "N":
-                return False
-            elif inpt.strip() == "Y":
-                return True
+            view = self.views[current_view]
+            preset_input = view.draw()
 
-    while True:
-        crop_cfg = init_crop_cfg()
-
-        try:
-            with Image.open(crop_cfg.filename) as img:
-                img.load()
-
-                resized_img = adjust_to_dividers(img, crop_cfg.width_part, crop_cfg.height_part)
-
-                match crop_cfg.crop_type:
-                    case CropType.SQUARE:
-                        src_img = resize_to_square(resized_img, crop_cfg.width_part, crop_cfg.height_part)
-                        image_transforms = [
-                            resize_to_thumbnail,
-                        ]
-                    case CropType.WIDTH:
-                        src_img = resized_img
-                        image_transforms = [
-                            resize_to_width,
-                            resize_to_thumbnail,
-                        ]
-                    case CropType.HEIGHT:
-                        src_img = resized_img
-                        image_transforms = [
-                            resize_to_height,
-                            resize_to_thumbnail,
-                        ]
-
-                src_width, src_height = src_img.size
-                width_part_size, height_part_size = floor(src_width / crop_cfg.width_part), floor(src_height / crop_cfg.height_part)
-
-                cropped_img_list = crop_many(src_img, crop_cfg.width_part, crop_cfg.height_part, width_part_size, height_part_size, image_transforms)
-                for i in range(len(cropped_img_list)):
-                    cropped_img_list[i].save(f"{crop_cfg.save_filename}_{str(i)}{crop_cfg.save_file_type}")
-
-                if not continue_parser():
-                    return
-
-        except FileNotFoundError:
-            print(f"Указанный файл не найден. Текущая рабочая директория: {getcwd()} \nПовторите по новой")
-            continue
+            current_view = view.on_input(preset_input)
 
 
 if __name__ == "__main__":
-    main()
+    Main().main()
