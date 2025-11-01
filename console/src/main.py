@@ -4,7 +4,7 @@ from rich.console import Console
 
 from console.src.internal.config import AppConfig
 from console.src.internal.image_processor import ImageProcessor
-from console.src.views.common import CurrentView, View, InputFunction
+from console.src.views.common import CurrentView, View
 from console.src.views.main_menu import MainMenu
 from console.src.views.crop_type_selector import CropTypeSelector
 from console.src.views.crop_part_selector import CropPartSelector
@@ -12,6 +12,7 @@ from console.src.views.image_crop_screen import ImageCropScreen
 from console.src.views.save_type_selector import SavePartSelector
 from console.src.views.change_save_path import ChangeSavePath
 from console.src.views.transformers_choicer import TransformerChoicer
+from console.src.views.debug_tools import DebugToolsMain
 
 
 class Main:
@@ -28,6 +29,7 @@ class Main:
             CurrentView.IMAGE_CROP_SCREEN: ImageCropScreen(self.cfg, self.console, self.image_processor),
             CurrentView.CHANGE_SAVE_PATH: ChangeSavePath(self.cfg, self.console),
             CurrentView.TRANSFORMERS_CHOICER: TransformerChoicer(self.cfg, self.console),
+            CurrentView.DEBUG_TOOLS_MAIN: DebugToolsMain(self.cfg, self.console),
         }
 
     def main(self) -> None:

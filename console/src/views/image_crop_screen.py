@@ -9,7 +9,7 @@ from rich.console import Console
 from rich.columns import Columns
 from rich.rule import Rule
 
-from common.src.logs import logging
+from common.src.logs import logger
 
 from console.src.views.common import CurrentView, View, InputFunction, InputReader
 from console.src.internal.config import AppConfig
@@ -110,7 +110,7 @@ class ImageCropScreen(View):
                 path = Path(inpt)
 
                 if not path.exists():
-                    self._messages_to_print.append("\n[red]Введенный путь не существует[/red]")
+                    self._message_buffer.append("\n[red]Введенный путь не существует[/red]")
                     return CurrentView.IMAGE_CROP_SCREEN
 
                 if path.is_dir():
@@ -119,14 +119,15 @@ class ImageCropScreen(View):
 
                 if path.is_file():
                     if path.suffix.lower() != ".png":
-                        self._messages_to_print.append("\n[red]Выбранный файл не является .png[/red]")
+                        self._message_buffer.append("\n[red]Выбранный файл не является .png[/red]")
                         return CurrentView.IMAGE_CROP_SCREEN
 
                     if not self._save_path.exists():
                         self._save_path.mkdir(parents=True, exist_ok=True)
 
                     self._image_processor.process(path, self._save_path)
-                    self._messages_to_print.append("\n[green]Файл успешно сохранён[/green]")
+                    self._message_buffer.append("\n[green]Файл успешно сохранён[/green]")
+                    self._message_buffer += logger.logs
 
                     return CurrentView.IMAGE_CROP_SCREEN
 

@@ -1,3 +1,3 @@
-from common.src.logs.logs import LogsHandler
+from common.src.logs.logs import LogsHandler as _LogHandler, LogLevel
 
-logging = LogsHandler()
+logger = _LogHandler()

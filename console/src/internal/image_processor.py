@@ -1,7 +1,7 @@
 from pathlib import Path
 from PIL import Image
 from math import floor
-from common.src.logs import logging
+from common.src.logs import logger
 
 from common.src.resizers.cropped import resize_to_thumbnail, resize_to_width, resize_to_height
 from common.src.resizers.original import adjust_to_dividers, resize_to_square
@@ -63,7 +63,8 @@ class ImageProcessor:
                     res_img,
                     self.app_config.width_part,
                     self.app_config.height_part,
-                    self.app_config.crop_type
+                    self.app_config.crop_type,
+                    logger=logger
                 )
             )
 

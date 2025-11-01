@@ -21,6 +21,7 @@ class CurrentView(Enum):
     IMAGE_CROP_SCREEN = auto()
     CHANGE_SAVE_PATH = auto()
     TRANSFORMERS_CHOICER = auto()
+    DEBUG_TOOLS_MAIN = auto()
 
 
 class InputReader:
@@ -63,7 +64,7 @@ class View(ABC):
         self.app_config: AppConfig = app_config
         self.console: Console = console
 
-        self._messages_to_print: List[str] = []
+        self._message_buffer: List[str] = []
 
     @abstractmethod
     def draw(self) -> InputReader:
@@ -74,8 +75,8 @@ class View(ABC):
         pass
 
     def _print_message_from_buffer(self, end="\n") -> None:
-        for message in self._messages_to_print:
+        for message in self._message_buffer:
             self.console.print(message, end=end)
 
     def _clear_message_buffer(self) -> None:
-        self._messages_to_print = []
+        self._message_buffer = []

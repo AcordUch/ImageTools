@@ -1,7 +1,7 @@
 from questionary import Choice
 from rich.console import Console
 
-from common.src.logs import logging
+from common.src.logs import logger
 
 from console.src.views.common import CurrentView, View, InputReader
 from console.src.internal.config import AppConfig
@@ -39,7 +39,7 @@ class MainMenu(View):
                 Choice("Относительный путь сохранения", "4"),
                 Choice("Сменить тип сохранения", "5"),
                 Choice("Выбрать дополнительные трансформации", "6"),
-                Choice("Проверить логи", "debug"),
+                Choice("Debug окно", "debug"),
             ],
             use_shortcuts=True,
             style=InputReader.DEFAULT_HINT_STYLE,
@@ -61,8 +61,6 @@ class MainMenu(View):
             case "6":
                 return CurrentView.TRANSFORMERS_CHOICER
             case "debug":
-                self._messages_to_print += logging.logs
-                logging.clear_logs()
-                return CurrentView.MAIN_MENU
+                return CurrentView.DEBUG_TOOLS_MAIN
             case _:
                 return CurrentView.MAIN_MENU

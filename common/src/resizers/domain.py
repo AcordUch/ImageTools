@@ -11,8 +11,9 @@ type OriginImageTransformerFunc = Callable[[OriginImageTransformInput], Image.Im
 
 
 class OriginImageTransformInput:
-    def __init__(self, src_img: Image.Image, width_part: int, height_part: int, crop_type: CropType):
+    def __init__(self, src_img: Image.Image, width_part: int, height_part: int, crop_type: CropType, **kwargs):
         self.src_img = src_img
         self.width_part = width_part
         self.height_part = height_part
         self.crop_type = crop_type
+        self.kwargs = kwargs

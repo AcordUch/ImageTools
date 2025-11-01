@@ -2,6 +2,7 @@
 from math import floor
 
 from PIL import Image
+from rich.rule import Rule
 
 from common.src.resizers.domain import OriginImageTransformInput
 from common.src.domain.domain import CropType
@@ -75,13 +76,23 @@ def resize_to_adjust_part_to_square(_input: OriginImageTransformInput) -> Image.
     image_center_x = floor(new_image_width / 2)
     image_center_y = floor(new_image_height / 2)
 
-    part_width_zero_mod = new_image_width if new_image_width % 2 == 0 else new_image_width + 1
-    part_height_zero_mod = new_image_height if new_image_height % 2 == 0 else new_image_height + 1
+    src_width_zero_mod = src_width if src_width % 2 == 0 else src_width + 1
+    src_height_zero_mod = src_height if src_height % 2 == 0 else src_height + 1
 
-    padding_x = image_center_x - floor(part_width_zero_mod / 2)
-    padding_y = image_center_y - floor(part_height_zero_mod / 2)
+    padding_x = image_center_x - floor(src_width_zero_mod / 2)
+    padding_y = image_center_y - floor(src_height_zero_mod / 2)
 
     resized_img = Image.new("RGBA", (new_image_width, new_image_height), (0, 0, 0, 0))
     resized_img.paste(_input.src_img, (padding_x, padding_y))
+
+    _input.kwargs["logger"].debug(Rule())
+    _input.kwargs["logger"].debug(f"src_size: {src_width}, {src_height}")
+    _input.kwargs["logger"].debug(f"part_size: {part_width}, {part_height}")
+    _input.kwargs["logger"].debug(f"target_part_size: {target_part_size}")
+    _input.kwargs["logger"].debug(f"new_src_size: {new_image_width}, {new_image_height}")
+    _input.kwargs["logger"].debug(f"ing_center: {image_center_x}, {image_center_y}")
+    _input.kwargs["logger"].debug(f"part_size_zero_mod: {src_width_zero_mod}, {src_height_zero_mod}")
+    _input.kwargs["logger"].debug(f"padding: {padding_x}, {padding_y}")
+    _input.kwargs["logger"].debug(Rule())
 
     return resized_img

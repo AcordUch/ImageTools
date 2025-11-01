@@ -70,12 +70,12 @@ class CropPartSelector(View):
                 try:
                     new_value = int(inpt)
                     if new_value <= 0:
-                        self._messages_to_print.append("Количество должно быть больше или равно единицы: ")
+                        self._message_buffer.append("Количество должно быть больше или равно единицы: ")
                         return CurrentView.CROP_PARTS_SELECTOR
 
                     return self._input_handler(new_value)
                 except ValueError:
-                    self._messages_to_print.append("Введите только число: ")
+                    self._message_buffer.append("Введите только число: ")
                     return CurrentView.CROP_PARTS_SELECTOR
 
     def _handle_square_width(self, inpt: int) -> CurrentView:
