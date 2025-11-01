@@ -11,6 +11,7 @@ from console.src.views.crop_part_selector import CropPartSelector
 from console.src.views.image_crop_screen import ImageCropScreen
 from console.src.views.save_type_selector import SavePartSelector
 from console.src.views.change_save_path import ChangeSavePath
+from console.src.views.transformers_choicer import TransformerChoicer
 
 
 class Main:
@@ -26,6 +27,7 @@ class Main:
             CurrentView.SAVE_TYPE_SELECTOR: SavePartSelector(self.cfg, self.console),
             CurrentView.IMAGE_CROP_SCREEN: ImageCropScreen(self.cfg, self.console, self.image_processor),
             CurrentView.CHANGE_SAVE_PATH: ChangeSavePath(self.cfg, self.console),
+            CurrentView.TRANSFORMERS_CHOICER: TransformerChoicer(self.cfg, self.console),
         }
 
     def main(self) -> None:

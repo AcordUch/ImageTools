@@ -1,27 +1,26 @@
 from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, auto
 from abc import ABC, abstractmethod
-from typing import Callable
-from questionary import autocomplete, select, rawselect, Style
-from prompt_toolkit.application.current import get_app
-
-from prompt_toolkit import prompt
+from typing import Callable, List
+from questionary import autocomplete, select, checkbox, Style
 
 from rich.console import Console
 
 from console.src.internal.config import AppConfig
+from common.src.resizers.origin_transformer import OriginImageTransformer
 
-type InputFunction = Callable[..., str]
+type InputFunction = Callable[..., str | List[OriginImageTransformer]]
 
 
 class CurrentView(Enum):
-    MAIN_MENU = 0
-    CROP_TYPE_SELECTOR = 1
-    CROP_PARTS_SELECTOR = 2
-    SAVE_TYPE_SELECTOR = 3
-    IMAGE_CROP_SCREEN = 4
-    CHANGE_SAVE_PATH = 5
+    MAIN_MENU = auto()
+    CROP_TYPE_SELECTOR = auto()
+    CROP_PARTS_SELECTOR = auto()
+    SAVE_TYPE_SELECTOR = auto()
+    IMAGE_CROP_SCREEN = auto()
+    CHANGE_SAVE_PATH = auto()
+    TRANSFORMERS_CHOICER = auto()
 
 
 class InputReader:
@@ -30,7 +29,7 @@ class InputReader:
         ('highlighted', 'bg:#1e4011 bold'),
     ])
 
-    DEFAULT_INSTRUCTION="Используйте цифры или стрелки для выбора"
+    DEFAULT_INSTRUCTION = "Используйте цифры или стрелки для выбора"
 
     def __init__(self, input_func: InputFunction) -> None:
         self.input_func: InputFunction = input_func
@@ -48,10 +47,14 @@ class InputReader:
         return InputReader(lambda **kwargs: select(**kwargs).ask())
 
     @staticmethod
-    def preset_input(preset: str) -> InputReader:
-        return InputReader(lambda **kwargs: preset)
+    def with_checkbox() -> InputReader:
+        return InputReader(lambda **kwargs: checkbox(**kwargs).ask())
 
-    def read(self, **kwargs) -> str:
+    @staticmethod
+    def preset_or_none_input(preset: str | None) -> InputReader:
+        return InputReader(lambda **kwargs: preset if preset is not None else input())
+
+    def read(self, **kwargs) -> str | List[OriginImageTransformer]:
         return self.input_func(**kwargs)
 
 
@@ -60,6 +63,8 @@ class View(ABC):
         self.app_config: AppConfig = app_config
         self.console: Console = console
 
+        self._messages_to_print: List[str] = []
+
     @abstractmethod
     def draw(self) -> InputReader:
         pass
@@ -67,3 +72,10 @@ class View(ABC):
     @abstractmethod
     def on_input(self, input_read: InputReader) -> CurrentView:
         pass
+
+    def _print_message_from_buffer(self, end="\n") -> None:
+        for message in self._messages_to_print:
+            self.console.print(message, end=end)
+
+    def _clear_message_buffer(self) -> None:
+        self._messages_to_print = []

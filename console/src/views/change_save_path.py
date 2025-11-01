@@ -12,7 +12,7 @@ class ChangeSavePath(View):
     def draw(self) -> InputReader:
         self.console.clear()
 
-        self.console.print("Введите путь относительный текущей локации, где будут сохранены файлы:\n")
+        self.console.print("Введите путь относительно текущей локации, где будут сохранены файлы:\n")
 
         return InputReader.free_input()
 

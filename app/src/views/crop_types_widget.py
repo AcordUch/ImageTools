@@ -3,7 +3,7 @@ import logging
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty, ObjectProperty, BooleanProperty
 
-from common.src.croppers.domain import CropType
+from common.src.domain.domain import CropType
 from app.src.views.cropping_widget import CroppingWidget
 from app.src.internal.decorator import update_mutex
 

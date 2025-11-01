@@ -1,9 +1,9 @@
 from typing import List, Callable
 from rich.console import Console
 
-from common.src.croppers.domain import CropType
+from common.src.domain.domain import CropType
 
-from console.src.views.common import CurrentView, View, InputFunction, InputReader
+from console.src.views.common import CurrentView, View, InputReader
 from console.src.internal.config import AppConfig
 
 
@@ -11,7 +11,6 @@ class CropPartSelector(View):
     def __init__(self, app_config: AppConfig, console: Console) -> None:
         super().__init__(app_config, console)
 
-        self._messages_to_print: List[str] = []
         self._input_handler: Callable[[int], CurrentView] = self._handle_square_width
         self._is_width_choosing: bool = True
         self._need_clear_screen: bool = True
@@ -50,17 +49,17 @@ class CropPartSelector(View):
         if self._need_clear_screen:
             self.console.clear()
 
+        preset_input: str | None
         if self._is_width_choosing:
             preset_input = _is_width_choosing()
         else:
             preset_input = _is_height_choosing()
 
-        for message in self._messages_to_print:
-            self.console.print(message, end="")
+        self._print_message_from_buffer(end="")
 
-        self._messages_to_print = []
+        self._clear_message_buffer()
 
-        return InputReader.preset_input(preset_input)
+        return InputReader.preset_or_none_input(preset_input)
 
     def on_input(self, input_reader: InputReader) -> CurrentView:
         inpt = input_reader.read()

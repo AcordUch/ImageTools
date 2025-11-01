@@ -1,9 +1,7 @@
-from pyexpat.errors import messages
 from questionary import Choice
 from rich.console import Console
 
-from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.shortcuts import CompleteStyle
+from common.src.logs import logging
 
 from console.src.views.common import CurrentView, View, InputReader
 from console.src.internal.config import AppConfig
@@ -22,13 +20,11 @@ class MainMenu(View):
     Число частей по горизонтали: {self.app_config.width_part}
     Число частей по вертикали: {self.app_config.height_part}
     Относительный путь сохранения: {self.app_config.relative_path}
-    
-    1 - Перейти к выбору изображения
-    2 - Сменить тип разделения
-    3 - Сменить число частей
-    4 - Относительный путь сохранения
-    5 - Сменить тип сохранения
+    Выбранные модификации изначального изображения: {[transformer.description for transformer in self.app_config.transformers(self.app_config.crop_type)]}
             """)
+
+        self._print_message_from_buffer()
+        self._clear_message_buffer()
 
         return InputReader.with_select()
 
@@ -42,6 +38,8 @@ class MainMenu(View):
                 Choice("Сменить число частей", "3"),
                 Choice("Относительный путь сохранения", "4"),
                 Choice("Сменить тип сохранения", "5"),
+                Choice("Выбрать дополнительные трансформации", "6"),
+                Choice("Проверить логи", "debug"),
             ],
             use_shortcuts=True,
             style=InputReader.DEFAULT_HINT_STYLE,
@@ -60,5 +58,11 @@ class MainMenu(View):
                 return CurrentView.CHANGE_SAVE_PATH
             case "5":
                 return CurrentView.SAVE_TYPE_SELECTOR
+            case "6":
+                return CurrentView.TRANSFORMERS_CHOICER
+            case "debug":
+                self._messages_to_print += logging.logs
+                logging.clear_logs()
+                return CurrentView.MAIN_MENU
             case _:
                 return CurrentView.MAIN_MENU

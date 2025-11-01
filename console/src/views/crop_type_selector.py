@@ -1,10 +1,9 @@
-from prompt_toolkit.shortcuts import CompleteStyle
 from questionary import Choice
 from rich.console import Console
 
-from common.src.croppers.domain import CropType
+from common.src.domain.domain import CropType
 
-from console.src.views.common import CurrentView, View, InputFunction, InputReader
+from console.src.views.common import CurrentView, View, InputReader
 from console.src.internal.config import AppConfig
 
 
@@ -44,9 +43,11 @@ class CropTypeSelector(View):
                 return CurrentView.MAIN_MENU
             case "2":
                 self.app_config.crop_type = CropType.WIDTH
+                self.app_config.height_part = 1
                 return CurrentView.MAIN_MENU
             case "3":
                 self.app_config.crop_type = CropType.HEIGHT
+                self.app_config.width_part = 1
                 return CurrentView.MAIN_MENU
             case _:
                 return CurrentView.CROP_TYPE_SELECTOR

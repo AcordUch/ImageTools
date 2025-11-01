@@ -1,3 +1,4 @@
+from questionary import Choice
 from rich.console import Console
 
 from console.src.views.common import CurrentView, View, InputFunction, InputReader
@@ -11,15 +12,22 @@ class SavePartSelector(View):
     def draw(self) -> InputReader:
         self.console.clear()
 
-        self.console.print("""Выберете формат для сохранения: 
-    1 - .png
-    """)
-        return InputReader.with_autocomplete()
+        self.console.print("""Выберете формат для сохранения:""")
+        return InputReader.with_select()
 
-    def on_input(self, input_read: InputFunction) -> CurrentView:
-        inpt = input_read()
+    def on_input(self, input_reader: InputReader) -> CurrentView:
+        inpt = input_reader.read(
+            message="",
+            choices=[
+                Choice("Выйти", ">quit"),
+                Choice(".png", "1"),
+            ],
+            use_shortcuts=True,
+            style=InputReader.DEFAULT_HINT_STYLE,
+            instruction=InputReader.DEFAULT_INSTRUCTION,
+        )
         match inpt:
-            case ">q" | ">back" | ">exit":
+            case ">q" | ">quit" | ">back" | ">exit":
                 return CurrentView.MAIN_MENU
             case "1":
                 self.app_config.save_file_type = ".png"

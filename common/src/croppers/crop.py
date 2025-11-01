@@ -1,5 +1,5 @@
 from PIL import Image
-from common.src.resizers.domain import ImageTransform
+from common.src.resizers.domain import CroppedImageTransformerFunc
 
 def crop(src_img: Image.Image, width_part_size: int, height_part_size: int, current_width_part: int, current_height_part: int) -> Image.Image:
     zero_width = 0 + width_part_size * current_width_part
@@ -14,7 +14,7 @@ def crop_many(
         src_img: Image.Image,
         width_part: int, height_part: int,
         width_part_size: int, height_part_size: int,
-        image_transforms: list[ImageTransform]
+        image_transforms: list[CroppedImageTransformerFunc]
 ) -> list[Image.Image]:
     cropped_img_list = list()
 

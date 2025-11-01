@@ -5,7 +5,7 @@ from typing import Tuple, List
 from PIL import Image, ImageDraw
 from kivy.core.image import Image as CoreImage
 
-from common.src.croppers.domain import CropType
+from common.src.domain.domain import CropType
 
 
 class CropFrame:

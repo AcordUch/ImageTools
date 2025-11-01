@@ -8,8 +8,8 @@ from kivy.core.image import Image as CoreImage
 from kivy.clock import Clock, ClockEvent
 
 from internal.domain import CropFrame
-from common.src.croppers.domain import CropType
-from common.src.resizers.domain import ImageTransform
+from common.src.domain.domain import CropType
+from common.src.resizers.domain import CroppedImageTransformerFunc
 from common.src.resizers.cropped import resize_to_thumbnail
 
 type ResizeFunction = Callable[[int], None]
@@ -25,7 +25,7 @@ class CroppingWidget(BoxLayout):
     def __init__(self, **kwargs):
         super(CroppingWidget, self).__init__(**kwargs)
 
-        self.image_transformers: List[ImageTransform] = [
+        self.image_transformers: List[CroppedImageTransformerFunc] = [
             resize_to_thumbnail,
         ]
 

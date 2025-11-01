@@ -1,7 +1,10 @@
 """Операции над изначальным изображением"""
-
 from math import floor
+
 from PIL import Image
+
+from common.src.resizers.domain import OriginImageTransformInput
+from common.src.domain.domain import CropType
 
 
 def resize_to_square(src_img: Image.Image, width_part: int, height_part: int) -> Image.Image:
@@ -32,7 +35,7 @@ def resize_to_square(src_img: Image.Image, width_part: int, height_part: int) ->
     return new_image
 
 
-def adjust_to_dividers(src_img: Image.Image, width_part, height_part):
+def adjust_to_dividers(src_img: Image.Image, width_part: int, height_part: int) -> Image.Image:
     src_width, src_height = src_img.size
 
     width_div = src_width % width_part
@@ -50,3 +53,35 @@ def adjust_to_dividers(src_img: Image.Image, width_part, height_part):
     new_image.paste(src_img, (0, 0))
 
     return new_image
+
+
+def resize_to_adjust_part_to_square(_input: OriginImageTransformInput) -> Image.Image:
+    src_width, src_height = _input.src_img.size
+    part_width = floor(src_width / _input.width_part)
+    part_height = floor(src_height / _input.height_part)
+
+    if part_width == part_height or not (_input.crop_type == CropType.WIDTH or _input.crop_type == CropType.HEIGHT):
+        return _input.src_img
+
+    is_resize_to_width = _input.crop_type == CropType.WIDTH
+    target_part_size = max(part_width, part_height)
+
+    new_image_width = target_part_size * _input.width_part if is_resize_to_width else target_part_size + 2
+    new_image_height = target_part_size + 2 if is_resize_to_width else target_part_size * _input.height_part
+
+    new_image_width = new_image_width if new_image_width % 2 == 0 else new_image_width + 1
+    new_image_height = new_image_height if new_image_height % 2 == 0 else new_image_height + 1
+
+    image_center_x = floor(new_image_width / 2)
+    image_center_y = floor(new_image_height / 2)
+
+    part_width_zero_mod = new_image_width if new_image_width % 2 == 0 else new_image_width + 1
+    part_height_zero_mod = new_image_height if new_image_height % 2 == 0 else new_image_height + 1
+
+    padding_x = image_center_x - floor(part_width_zero_mod / 2)
+    padding_y = image_center_y - floor(part_height_zero_mod / 2)
+
+    resized_img = Image.new("RGBA", (new_image_width, new_image_height), (0, 0, 0, 0))
+    resized_img.paste(_input.src_img, (padding_x, padding_y))
+
+    return resized_img
