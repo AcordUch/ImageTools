@@ -7,7 +7,7 @@ from kivy.properties import ListProperty, ObjectProperty
 from kivy.core.image import Image as CoreImage
 from kivy.clock import Clock, ClockEvent
 
-from internal.domain import CropFrame
+from app.src.internal.domain import CropFrame
 from common.src.domain.domain import CropType
 from common.src.resizers.domain import CroppedImageTransformerFunc
 from common.src.resizers.cropped import resize_to_thumbnail

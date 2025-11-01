@@ -255,6 +255,10 @@ class CropFrame:
     def _clamp_to_screen(self) -> bool:
         logging.debug(f"Call: clamp_to_screen")
 
+        if self._src_image is None:
+            logging.debug(f"Self.src_image is None")
+            return False
+
         img_width, img_height = self._src_image.size
         is_clamped = False
 

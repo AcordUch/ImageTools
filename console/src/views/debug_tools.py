@@ -14,7 +14,7 @@ class DebugToolsMain(View):
     def draw(self) -> InputReader:
         self.console.clear()
 
-        self.console.print(f"Текущий уровень логов: {logger.log_level}")
+        self.console.print(f"Текущий уровень логов: {logger.log_level.name}")
 
         self._print_message_from_buffer()
         self._clear_message_buffer()
