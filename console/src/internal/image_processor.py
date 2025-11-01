@@ -12,11 +12,17 @@ from common.src.resizers.domain import OriginImageTransformInput
 from console.src.internal.config import AppConfig
 
 
+class SaveMeta:
+    def __init__(self, save_file_name: str, save_amount: int) -> None:
+        self.save_file_name = save_file_name
+        self.save_amount = save_amount
+
+
 class ImageProcessor:
     def __init__(self, app_config: AppConfig) -> None:
         self.app_config = app_config
 
-    def process(self, img_path: Path, save_path: Path) -> None:
+    def process(self, img_path: Path, save_path: Path) -> SaveMeta:
         save_file_name = self.app_config.save_filename if self.app_config.save_filename is not None else img_path.stem
 
         with Image.open(img_path) as img:
@@ -50,8 +56,14 @@ class ImageProcessor:
             width_part_size, height_part_size = floor(src_width / self.app_config.width_part), floor(src_height / self.app_config.height_part)
 
             cropped_img_list = crop_many(src_img, self.app_config.width_part, self.app_config.height_part, width_part_size, height_part_size, image_transforms)
-            for i in range(len(cropped_img_list)):
+            cropped_img_amount = len(cropped_img_list)
+            for i in range(cropped_img_amount):
                 cropped_img_list[i].save(save_path / Path(f"{save_file_name}_{str(i)}{self.app_config.save_file_type}"))
+
+            return SaveMeta(
+                save_file_name,
+                cropped_img_amount
+            )
 
     def _transform(self, src_img: Image.Image) -> Image.Image:
         res_img: Image.Image = src_img

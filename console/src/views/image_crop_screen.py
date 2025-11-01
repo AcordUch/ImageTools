@@ -11,15 +11,15 @@ from rich.rule import Rule
 
 from common.src.logs import logger
 
-from console.src.views.common import CurrentView, View, InputFunction, InputReader
+from console.src.views.common import CurrentView, View, InputReader
 from console.src.internal.config import AppConfig
 from console.src.internal.image_processor import ImageProcessor
 
 
 class ImageCropScreen(View):
-    _chdir_regex_name = ">chdir"
-    _chname_regex_name = ">chname"
-    _rstname_regex_name = ">rstname"
+    _chdir_regex_name = ">cd"
+    _chname_regex_name = ">cn"
+    _rstname_regex_name = ">rn"
     _chdir_regex = compile(f"{_chdir_regex_name} (.*)")
     _chname_regex = compile(f"{_chname_regex_name} (.*)")
     _rstname_regex = compile(f"{_rstname_regex_name}(.*)")
@@ -43,7 +43,8 @@ class ImageCropScreen(View):
     def draw(self) -> InputReader:
         self.console.clear()
 
-        self._available_commands_hint[self._chname_regex_name] = f"Сменить имя сохранения. Файлы будут сохранены в виде {{Имя файла}}_{{Индекс}}{self.app_config.save_file_type}"
+        self._available_commands_hint[
+            self._chname_regex_name] = f"Сменить имя сохранения. Файлы будут сохранены в виде {{Имя файла}}_{{Индекс}}{self.app_config.save_file_type}"
 
         self._save_path: Path = Path.cwd() / self.app_config.relative_path
 
@@ -125,8 +126,11 @@ class ImageCropScreen(View):
                     if not self._save_path.exists():
                         self._save_path.mkdir(parents=True, exist_ok=True)
 
-                    self._image_processor.process(path, self._save_path)
-                    self._message_buffer.append("\n[green]Файл успешно сохранён[/green]")
+                    save_meta = self._image_processor.process(path, self._save_path)
+
+                    self._message_buffer.append(
+                        f"\n[green]Файл {path.stem} успешно обработан и сохранён как {save_meta.save_file_name}_ в количестве {save_meta.save_amount}[/green]"
+                    )
                     self._message_buffer += logger.logs
 
                     return CurrentView.IMAGE_CROP_SCREEN
